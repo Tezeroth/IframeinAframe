@@ -78,12 +78,12 @@ AFRAME.registerComponent('open-page-iframe', {
         <div class="page__modal-header">
             <button class="close">back to VR</button>
         </div>
-        <iframe src="${this.data.url}" frameborder="0" 
+        <iframe src="${this.data.url}" frameborder="0" frameborder="0"
                 
                 allow="xr-spatial-tracking; gyroscope; accelerometer" 
                 width="100%" height="100%">
-
-        </iframe>
+                
+                </iframe>
         </div>`;
 
         document.body.insertAdjacentHTML('beforeend', template);
