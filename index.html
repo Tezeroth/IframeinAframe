@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> A-Frame Switch VR & Page</title>
+
+    <!-- Include A-Frame and required external components -->
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.3.0/dist/aframe-environment-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js"></script>
+    <script src="aframe-open-page-iframe.js"></script>
+</head>
+
+<body>
+    <!-- A-Frame scene definition -->
+    <a-scene environment renderer="antialias: true; colorManagement: true;" camera-position cursor="rayOrigin: mouse"
+        raycaster="far: 100; objects: .raycastable;">
+        
+        <!-- Asset Management System -->
+        <a-assets>
+            <!-- Preload images for panels -->
+            <img id="Tezz" src="assets/images/TezzesHead.png">
+            <img id="Shop" src="assets/images/shopnow.png">
+            
+            <!-- Define reusable animations using a mixin -->
+            <a-mixin id="hover-anim"
+                animation__scaleUp="startEvents: mouseenter; property: scale; to: 1.3 1.3 1.3; dur: 250;"
+                animation__scaleDown="startEvents: mouseleave; property: scale; to: 1 1 1; dur: 250;">
+            </a-mixin>
+
+            <!-- Panel properties -->
+            <a-mixin id="panel" material="shader:flat;transparent:true;"  position="0 1.25 0" look-at="[camera]">
+            </a-mixin>
+        </a-assets>
+
+        <!-- Camera Rig for movement and VR controls -->
+        <a-entity id="rig" movement-controls="controls: gamepad, keyboard" position="0 0 0">
+            <!-- Camera for viewing the scene -->
+            <a-camera>
+                <!-- Cursor for interacting with objects -->
+                <a-cursor
+                    position="0 0 -1"
+                    geometry="primitive: sphere; radius: 0.005; segmentsWidth: 4; segmentsHeight: 4"
+                    material="color: #0FFF00; shader: flat; opacity: 0.5"
+                    raycaster="objects: .clickable">
+                </a-cursor>
+            </a-camera>
+
+            <!-- Hand controllers for VR interaction -->
+            <a-entity hand-controls="hand: left; handModelStyle: lowPoly; color: #ffcccc" position="-0.5 0 -0.5"></a-entity>
+            <a-entity hand-controls="hand: right; handModelStyle: lowPoly; color: #ccccff" position="0.5 0 -0.5"></a-entity>
+        </a-entity>
+
+
+            <!--Instructions -->
+            <a-text value="'Desktop: W,A,S,D + LMB and drag\n Vr users: standard thumbstick controls\n Mobile: coming soon" align="center" position="0 5 -5"></a-text>
+            
+        <!-- Wrapper for back panel and rotated explanatory text panels -->
+        <a-entity id="description" position="0 5.5í -5">
+        <!--Back Panel-->
+        <a-plane position="0 0 -10" width="25" height="15" material="src: assets/images/tree.png"></a-plane>
+           
+            <!-- Explanatory Panel 1 -->
+            <a-plane position="-4 -2 0" material="shader:flat;transparent:true;" opacity="0.5" rotation="0 45 0" color="#1D1E2C" width="5" height="1.5">
+                <a-text position="0 0 0.1" align="center"
+                    value="This is a proof of concept \n that 3D websites can \n be integrated into the normal web.">
+                </a-text>
+            </a-plane>
+            
+            <!-- Explanatory Panel 2 -->
+            <a-plane position="4 -2 0" material="shader:flat;transparent:true;" opacity="0.5" rotation="0 -45 0" color="#6A8D92" width="5" height="1.5">
+                <a-text position="0 0 0.01" align="center"
+                    value="Click on the image on the left \nto see my portfolio of web pages,\n or click 'shop now' to see a viable\n ecommerce  platform, using i-frames.">
+                </a-text>
+                
+            </a-plane>
+        </a-entity>
+
+        <!-- Interactive Panels Section -->
+        <a-entity id="panels" position="0 0.5 -4">
+            <!-- Panel 1: Links to portfolio -->
+            <a-box position="-1 0 0" color="green">
+                <a-plane mixin="panel hover-anim" material="src:#Tezz;" class="raycastable"
+                    open-page-iframe="url:https://tezeroth.github.io/Bootstrap-Portfolio/">
+                </a-plane>
+            </a-box>
+
+            <!-- Panel 2: Links to ecommerce platform -->
+            <a-cylinder position="1 0 0"  color="green">
+                <a-plane mixin="panel hover-anim" material="src:#Shop;" class="raycastable"
+                    open-page-iframe="url:https://www.shopify.com/uk">
+                </a-plane>
+            </a-cylinder>
+        </a-entity>
+    </a-scene>
+    
+    <!-- Link to custom JavaScript file -->
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>
