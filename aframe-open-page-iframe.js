@@ -46,13 +46,26 @@ AFRAME.registerComponent('open-page-iframe', {
     getSceneEl() {
         return this.el.sceneEl;
     },
-    openIframe() {
+    /*openIframe() {
         this.usingVRMode = this.getSceneEl().is('vr-mode');
 
         this.getSceneEl().exitVR();
         let modal = this.mountHTML();
         modal.focus();
-    },
+    } below is the newer debug code*/
+
+        openIframe() {
+            // Check if in VR mode
+            this.usingVRMode = this.getSceneEl().is('vr-mode');
+        
+            if (this.usingVRMode) {
+                console.log("Exiting VR mode to open iframe.");
+                this.getSceneEl().exitVR(); // Only exit VR if absolutely needed
+            }
+        
+            let modal = this.mountHTML();
+            modal.focus();
+        },
     closeIframe() {
         this.clearGarbage();
 
@@ -81,6 +94,7 @@ AFRAME.registerComponent('open-page-iframe', {
         <iframe src="${this.data.url}" frameborder="0" frameborder="0"
                 
                 allow="xr-spatial-tracking; gyroscope; accelerometer" 
+                 sandbox="allow-scripts allow-same-origin"
                 width="100%" height="100%">
                 
                 </iframe>
