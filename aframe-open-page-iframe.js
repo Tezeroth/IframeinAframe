@@ -56,9 +56,9 @@ AFRAME.registerComponent('open-page-iframe', {
 
         openIframe() {
             // Check if in VR mode
-            this.usingVRMode = this.getSceneEl().is('vr-mode');
+            this.usingXRMode = this.getSceneEl().is('xr-mode');
         
-            if (this.usingVRMode) {
+            if (this.usingXRMode) {
                 console.log("Exiting VR mode to open iframe.");
                 this.getSceneEl().exitVR(); // Only exit VR if absolutely needed
             }
