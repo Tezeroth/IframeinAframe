@@ -4,7 +4,6 @@ AFRAME.registerComponent('open-page-iframe', {
         url: { type: "string", default: "" }
     },
 
-    // Define methods before referencing them
     openIframe: function () {
         console.log("Context of 'this':", this);
         const data = this.data;
@@ -18,24 +17,25 @@ AFRAME.registerComponent('open-page-iframe', {
         const isXRMode = isVRMode || isARMode;
 
         if (isXRMode) {
+            console.log("Exiting XR mode to open modal.");
+            
+            // Add a one-time listener for the 'exit-xr' event
+            const handleExitXR = () => {
+                console.log("XR session ended. Opening modal.");
+                sceneEl.removeEventListener('exit-vr', handleExitXR); // Clean up listener for VR
+                sceneEl.removeEventListener('exit-ar', handleExitXR); // Clean up listener for AR
+                let modal = this.mountHTML();
+                modal.focus();
+            };
+
             if (isARMode) {
-                console.log("Opening URL in AR mode.");
-                window.open(data.url, '_blank'); // Opens in browser without exiting AR
+                // AR mode: Add exit listener for AR
+                sceneEl.addEventListener('exit-ar', handleExitXR);
+                sceneEl.exitAR(); // Exit AR mode
             } else if (isVRMode) {
-                console.log("Exiting VR mode to open modal.");
-
-                // Add a one-time listener for the 'exit-vr' event
-                const handleExitVR = () => {
-                    console.log("VR session ended. Opening modal.");
-                    sceneEl.removeEventListener('exit-vr', handleExitVR); // Clean up listener
-                    let modal = this.mountHTML();
-                    modal.focus();
-                };
-
-                sceneEl.addEventListener('exit-vr', handleExitVR);
-
-                // Exit VR mode
-                sceneEl.exitVR();
+                // VR mode: Add exit listener for VR
+                sceneEl.addEventListener('exit-vr', handleExitXR);
+                sceneEl.exitVR(); // Exit VR mode
             }
         } else {
             // Desktop behavior
@@ -49,7 +49,6 @@ AFRAME.registerComponent('open-page-iframe', {
         const data = this.data;
         const el = this.el;
 
-        // Debug the method binding
         console.log("openIframe exists:", this.openIframe);
         this.openIframe = this.openIframe.bind(this); // Bind the method to the correct context
 
@@ -96,11 +95,14 @@ AFRAME.registerComponent('open-page-iframe', {
     closeIframe: function () {
         this.clearGarbage();
 
-        if (this.el.sceneEl.is('vr-mode')) {
-            this.el.sceneEl.enterVR();
+        const sceneEl = this.el.sceneEl;
+        if (sceneEl.is('vr-mode')) {
+            sceneEl.enterVR();
+        } else if (sceneEl.is('ar-mode')) {
+            sceneEl.enterAR();
         }
 
-        this.el.sceneEl.focus();
+        sceneEl.focus();
     },
 
     get modalSelector() {
@@ -120,7 +122,7 @@ AFRAME.registerComponent('open-page-iframe', {
 
         const template = `<div id="a_open_page_iframe" class="page__modal">
             <div class="page__modal-header">
-                <button class="close">back to VR</button>
+                <button class="close">back to XR</button>
             </div>
             <iframe src="${this.data.url}" frameborder="0"
                     allow="xr-spatial-tracking; gyroscope; accelerometer"
