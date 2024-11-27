@@ -10,7 +10,7 @@
     <!-- Include A-Frame and required external components -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v7.5.1/dist/aframe-extras.min.js"></script>
-    <!--<script src="https://unpkg.com/aframe-environment-component@1.3.0/dist/aframe-environment-component.min.js"></script>-->
+    <script src="https://unpkg.com/aframe-environment-component@1.3.0/dist/aframe-environment-component.min.js"></script>
     <script src="https://unpkg.com/aframe-look-at-component@1.0.0/dist/aframe-look-at-component.min.js"></script>
     <script src="aframe-open-page-iframe.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/mayognaise/aframe-html-shader@master/dist/aframe-html-shader.min.js"></script>
@@ -18,10 +18,10 @@
 </head>
 
 <body>
-    <!-- A-Frame scene definition -->
-    <a-scene environment renderer="antialias: true; colorManagement: true;" camera-position cursor="rayOrigin: mouse"
-        raycaster="far: 100; objects: .raycastable;">
-        
+    <!-- A-Frame scene definition 
+    <a-scene stats environment renderer="antialias: true; colorManagement: true;" camera-position cursor="rayOrigin: mouse"
+        raycaster="far: 100; objects: .raycastable;"> -->
+        <a-scene stats environment="preset: forest; groundColor: #8FBC8F; skyColor: #87CEEB">
         <!-- Asset Management System -->
         <a-assets>
             <!-- Preload images for panels -->
@@ -91,15 +91,15 @@
                     open-page-iframe="url:https://tezeroth.github.io/Bootstrap-Portfolio/; ">
                    <!-- -->
                 </a-plane>
-            </a-box>w
+            </a-box>
 
             <!-- Panel 2: Links to ecommerce platform -->
-            <a-cylinder position="1 0 0"  color="green">
+            <a-box position="1 0 0"  color="green">
                 <a-plane mixin="panel hover-anim" material="src:#Shop;" class="raycastable clickable"
                     open-page-iframe="url:https://www.shopify.com/uk">
                    <!-- ""-->
                 </a-plane>
-            </a-cylinder>
+            </a-box>
         </a-entity>
         
     </a-scene>

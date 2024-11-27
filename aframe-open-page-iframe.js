@@ -141,4 +141,4 @@ AFRAME.registerComponent('open-page-iframe', {
         return modal;
     }
 });
-//working
+//working code
