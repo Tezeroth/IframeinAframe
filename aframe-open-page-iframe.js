@@ -4,50 +4,11 @@ AFRAME.registerComponent('open-page-iframe', {
         url: { type: "string", default: "" }
     },
 
-    openIframe: function () {
-        console.log("Context of 'this':", this);
-        const data = this.data;
-
-        // Access scene element manually
-        const sceneEl = this.el.sceneEl;
-
-        // Check for XR mode (AR or VR)
-        const isVRMode = sceneEl.is('vr-mode');
-        const isARMode = sceneEl.is('ar-mode');
-        const isXRMode = isVRMode || isARMode;
-
-        if (isXRMode) {
-            console.log("Exiting XR mode to open modal.");
-            
-            // Add a one-time listener for the 'exit-xr' event
-            const handleExitXR = () => {
-                console.log("XR session ended. Opening modal.");
-                sceneEl.removeEventListener('exit-vr', handleExitXR); // Clean up listener for VR
-                sceneEl.removeEventListener('exit-ar', handleExitXR); // Clean up listener for AR
-                let modal = this.mountHTML();
-                modal.focus();
-            };
-
-            if (isARMode) {
-                // AR mode: Add exit listener for AR
-                sceneEl.addEventListener('exit-ar', handleExitXR);
-                sceneEl.exitAR(); // Exit AR mode
-            } else if (isVRMode) {
-                // VR mode: Add exit listener for VR
-                sceneEl.addEventListener('exit-vr', handleExitXR);
-                sceneEl.exitVR(); // Exit VR mode
-            }
-        } else {
-            // Desktop behavior
-            console.log("Opening modal in desktop mode.");
-            let modal = this.mountHTML();
-            modal.focus();
-        }
-    },
-
     init: function () {
         const data = this.data;
         const el = this.el;
+
+        this.isARMode = false; // Track XR mode type
 
         console.log("openIframe exists:", this.openIframe);
         this.openIframe = this.openIframe.bind(this); // Bind the method to the correct context
@@ -63,6 +24,40 @@ AFRAME.registerComponent('open-page-iframe', {
         }
 
         this.mountStyles();
+    },
+
+    openIframe: function () {
+        console.log("Context of 'this':", this);
+        const data = this.data;
+        const sceneEl = this.el.sceneEl;
+
+        const isVRMode = sceneEl.is('vr-mode');
+        const isARMode = sceneEl.is('ar-mode');
+        const isXRMode = isVRMode || isARMode;
+
+        if (isXRMode) {
+            console.log("Exiting XR mode to open modal.");
+            const handleExitXR = () => {
+                console.log("XR session ended. Opening modal.");
+                sceneEl.removeEventListener('exit-vr', handleExitXR);
+                let modal = this.mountHTML();
+                modal.focus();
+            };
+
+            if (isARMode) {
+                this.isARMode = true;
+                sceneEl.addEventListener('exit-vr', handleExitXR);
+                sceneEl.exitVR();
+            } else if (isVRMode) {
+                this.isARMode = false;
+                sceneEl.addEventListener('exit-vr', handleExitXR);
+                sceneEl.exitVR();
+            }
+        } else {
+            console.log("Opening modal in desktop mode.");
+            let modal = this.mountHTML();
+            modal.focus();
+        }
     },
 
     mountStyles: function () {
@@ -96,10 +91,12 @@ AFRAME.registerComponent('open-page-iframe', {
         this.clearGarbage();
 
         const sceneEl = this.el.sceneEl;
-        if (sceneEl.is('vr-mode')) {
+        if (this.isARMode) {
             sceneEl.enterVR();
-        } else if (sceneEl.is('ar-mode')) {
-            sceneEl.enterAR();
+            console.log("Returning to AR mode.");
+        } else {
+            sceneEl.enterVR();
+            console.log("Returning to VR mode.");
         }
 
         sceneEl.focus();
@@ -126,12 +123,12 @@ AFRAME.registerComponent('open-page-iframe', {
             </div>
             <iframe src="${this.data.url}" frameborder="0"
                     allow="xr-spatial-tracking; gyroscope; accelerometer"
-                    sandbox="allow-scripts allow-same-origin"
+                    sandbox="allow-same-origin allow-scripts "
                     width="100%" height="100%">
+                    
             </iframe>
         </div>`;
-
-        document.body.insertAdjacentHTML('beforeend', template);
+                document.body.insertAdjacentHTML('beforeend', template);
 
         const modal = document.querySelector('#a_open_page_iframe');
         if (modal) {
