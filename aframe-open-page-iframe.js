@@ -4,14 +4,56 @@ AFRAME.registerComponent('open-page-iframe', {
         url: { type: "string", default: "" }
     },
 
-    init() {
+    // Define methods before referencing them
+    openIframe: function () {
+        console.log("Context of 'this':", this);
+        const data = this.data;
+
+        // Access scene element manually
+        const sceneEl = this.el.sceneEl;
+
+        // Check for XR mode (AR or VR)
+        const isVRMode = sceneEl.is('vr-mode');
+        const isARMode = sceneEl.is('ar-mode');
+        const isXRMode = isVRMode || isARMode;
+
+        if (isXRMode) {
+            if (isARMode) {
+                console.log("Opening URL in AR mode.");
+                window.open(data.url, '_blank'); // Opens in browser without exiting AR
+            } else if (isVRMode) {
+                console.log("Exiting VR mode to open modal.");
+
+                // Add a one-time listener for the 'exit-vr' event
+                const handleExitVR = () => {
+                    console.log("VR session ended. Opening modal.");
+                    sceneEl.removeEventListener('exit-vr', handleExitVR); // Clean up listener
+                    let modal = this.mountHTML();
+                    modal.focus();
+                };
+
+                sceneEl.addEventListener('exit-vr', handleExitVR);
+
+                // Exit VR mode
+                sceneEl.exitVR();
+            }
+        } else {
+            // Desktop behavior
+            console.log("Opening modal in desktop mode.");
+            let modal = this.mountHTML();
+            modal.focus();
+        }
+    },
+
+    init: function () {
         const data = this.data;
         const el = this.el;
-    
+
+        // Debug the method binding
+        console.log("openIframe exists:", this.openIframe);
+        this.openIframe = this.openIframe.bind(this); // Bind the method to the correct context
+
         if (data.event && data.url) {
-            // Bind openIframe to the correct context
-            this.openIframe = this.openIframe.bind(this);
-    
             el.addEventListener(data.event, (e) => {
                 console.log(`Event '${data.event}' triggered.`);
                 this.openIframe();
@@ -20,12 +62,11 @@ AFRAME.registerComponent('open-page-iframe', {
         } else {
             console.error("Event or URL not defined in component schema.");
         }
-    
-        this.mountStyles();
-    }
-    ,
 
-    mountStyles() {
+        this.mountStyles();
+    },
+
+    mountStyles: function () {
         const styles = document.querySelector(this.modalStyleSelector);
 
         if (!styles) {
@@ -52,43 +93,14 @@ AFRAME.registerComponent('open-page-iframe', {
         }
     },
 
-    openIframe() {
-        console.log("Context of 'this':", this);
-        const data = this.data;
-    
-        // Access scene element manually
-        const sceneEl = this.el.sceneEl;
-    
-        // Check for XR mode (AR or VR)
-        const isVRMode = sceneEl.is('vr-mode');
-        const isARMode = sceneEl.is('ar-mode');
-        const isXRMode = isVRMode || isARMode;
-    
-        if (isXRMode) {
-            if (isARMode) {
-                console.log("Opening URL in AR mode.");
-                window.open(data.url, '_blank'); // Opens in browser without exiting AR
-            } else if (isVRMode) {
-                console.log("Exiting VR mode to open iframe.");
-                sceneEl.exitVR();
-            }
-        } else {
-            console.log("Falling back to desktop modal.");
-            let modal = this.mountHTML();
-            modal.focus();
-        }
-    }
-    
-    ,
-
-    closeIframe() {
+    closeIframe: function () {
         this.clearGarbage();
 
-        if (this.getSceneEl().is('vr-mode')) {
-            this.getSceneEl().enterVR();
+        if (this.el.sceneEl.is('vr-mode')) {
+            this.el.sceneEl.enterVR();
         }
 
-        this.getSceneEl().focus();
+        this.el.sceneEl.focus();
     },
 
     get modalSelector() {
@@ -99,11 +111,11 @@ AFRAME.registerComponent('open-page-iframe', {
         return '#a_open_page_css';
     },
 
-    clearGarbage() {
+    clearGarbage: function () {
         document.querySelectorAll(this.modalSelector).forEach((item) => item.remove());
     },
 
-    mountHTML() {
+    mountHTML: function () {
         this.clearGarbage();
 
         const template = `<div id="a_open_page_iframe" class="page__modal">
