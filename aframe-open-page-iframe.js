@@ -54,18 +54,19 @@ AFRAME.registerComponent('open-page-iframe', {
         modal.focus();
     } below is the newer debug code*/
 
-        openIframe() {
-            // Check if in VR mode
-            this.usingXRMode = this.getSceneEl().is('xr-mode');
-        
-            if (this.usingXRMode) {
-                console.log("Exiting VR mode to open iframe.");
-                this.getSceneEl().exitVR(); // Only exit VR if absolutely needed
-            }
-        
+    openIframe() {
+        const data = this.data;
+    
+        if (this.getSceneEl().is('vr-mode') || this.getSceneEl().is('ar-mode')) {
+            console.log("Opening external browser in XR mode.");
+            window.open(data.url, '_blank');
+        } else {
+            console.log("Opening modal iframe in 2D mode.");
             let modal = this.mountHTML();
             modal.focus();
-        },
+        }
+    },
+    
     closeIframe() {
         this.clearGarbage();
 
